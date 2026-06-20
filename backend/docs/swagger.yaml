@@ -1,0 +1,1115 @@
+basePath: /
+definitions:
+  models.CreateDocumentationRequest:
+    properties:
+      category:
+        type: string
+      content:
+        type: string
+      title:
+        type: string
+    required:
+    - category
+    - content
+    - title
+    type: object
+  models.CreateFeatureRequest:
+    properties:
+      description:
+        type: string
+      title:
+        type: string
+    required:
+    - description
+    - title
+    type: object
+  models.CreateNoteRequest:
+    properties:
+      content:
+        type: string
+      title:
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  models.CreateServerRequest:
+    properties:
+      ip:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      os:
+        type: string
+    required:
+    - ip
+    - location
+    - name
+    - os
+    type: object
+  models.CreateSystemRequest:
+    properties:
+      description:
+        type: string
+      links:
+        type: string
+      name:
+        type: string
+      server_id:
+        type: integer
+      status:
+        type: string
+      type:
+        type: string
+    required:
+    - description
+    - links
+    - name
+    - server_id
+    - status
+    - type
+    type: object
+  models.Documentation:
+    properties:
+      category:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      system_id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.FeatureRequest:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      status:
+        type: string
+      system_id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.LoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
+  models.Note:
+    properties:
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      systemId:
+        type: integer
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.RegisterRequest:
+    properties:
+      password:
+        minLength: 6
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - role
+    - username
+    type: object
+  models.Server:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      ip:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      os:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.System:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      documentations:
+        items:
+          $ref: '#/definitions/models.Documentation'
+        type: array
+      feature_requests:
+        items:
+          $ref: '#/definitions/models.FeatureRequest'
+        type: array
+      id:
+        type: integer
+      links:
+        type: string
+      name:
+        type: string
+      notes:
+        description: delete the child to
+        items:
+          $ref: '#/definitions/models.Note'
+        type: array
+      server:
+        $ref: '#/definitions/models.Server'
+      serverId:
+        type: integer
+      status:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.UpdateDocumentationRequest:
+    properties:
+      category:
+        type: string
+      content:
+        type: string
+      title:
+        type: string
+    type: object
+  models.UpdateFeatureRequest:
+    properties:
+      description:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      role:
+        description: Administrator, Developer, Viewer
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Central portal API for managing systems, servers, notes, feature requests,
+    and documentation.
+  title: Application Knowledge Management System API
+  version: "1.0"
+paths:
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with username and password to retrieve a Bearer token
+      parameters:
+      - description: Login Request Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: 'error: Invalid request body'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: 'error: Username atau password salah'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Authenticate user
+      tags:
+      - auth
+  /api/auth/logout:
+    post:
+      description: Logout user session (returns success confirmation)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: Logout successfully'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Logout user
+      tags:
+      - auth
+  /api/auth/me:
+    get:
+      description: Get the profile details of the currently authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "401":
+          description: 'error: Unauthorized / User tidak ditemukan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get current user profile
+      tags:
+      - auth
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user in the system with a specific role
+      parameters:
+      - description: Register Request Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: 'error: Invalid request body / Invalid role'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Username already exists / Database save error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - auth
+  /api/documentations/{id}:
+    delete:
+      description: Delete a documentation entry from database by ID
+      parameters:
+      - description: Documentation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: Dokumentasi deleted successfully'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: Dokumentasi tidak ditemukan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Gagal menghapus dokumentasi'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete documentation
+      tags:
+      - documentations
+    get:
+      description: Get details of a single documentation entry by ID
+      parameters:
+      - description: Documentation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Documentation'
+        "404":
+          description: 'error: Dokumentasi tidak ditemukan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get documentation by ID
+      tags:
+      - documentations
+    put:
+      consumes:
+      - application/json
+      description: Update details of an existing documentation entry by ID
+      parameters:
+      - description: Documentation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Documentation update fields
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateDocumentationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Documentation'
+        "400":
+          description: 'error: Invalid payload / Kategori tidak valid'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: Dokumentasi tidak ditemukan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Gagal memperbarui database'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update documentation
+      tags:
+      - documentations
+  /api/feature-requests/{id}:
+    delete:
+      description: Delete a feature request record from database by feature request
+        ID
+      parameters:
+      - description: Feature Request ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: Feature Request deleted successfully'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: Feature Request tidak ditemukan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Gagal menghapus data'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a feature request
+      tags:
+      - feature-requests
+    put:
+      consumes:
+      - application/json
+      description: Update details/status of an existing feature request by feature
+        request ID
+      parameters:
+      - description: Feature Request ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Feature request update payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateFeatureRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FeatureRequest'
+        "400":
+          description: 'error: Bad request'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: Feature Request tidak ditemukan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Gagal memperbarui database'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a feature request
+      tags:
+      - feature-requests
+  /api/notes/{id}:
+    delete:
+      description: Delete a note record from database by note ID
+      parameters:
+      - description: Note ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: Catatan deleted successfully'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: Catatan tidak ditemukan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Gagal menghapus catatan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a note
+      tags:
+      - notes
+    put:
+      consumes:
+      - application/json
+      description: Update details of an existing note record by note ID
+      parameters:
+      - description: Note ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Note content payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateNoteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Note'
+        "400":
+          description: 'error: Invalid request body'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: Catatan tidak ditemukan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Gagal memperbarui catatan di database'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a note
+      tags:
+      - notes
+  /api/servers:
+    get:
+      description: Get a list of all server records
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Server'
+            type: array
+      summary: Get all servers
+      tags:
+      - servers
+    post:
+      consumes:
+      - application/json
+      description: Create a new server record
+      parameters:
+      - description: Server payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateServerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Server'
+        "400":
+          description: 'error: Invalid request body'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new server
+      tags:
+      - servers
+  /api/servers/{id}:
+    delete:
+      description: Delete a server record from database
+      parameters:
+      - description: Server ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: Server deleted successfully'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: Id not found'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a server
+      tags:
+      - servers
+    get:
+      description: Get details of a server record by ID
+      parameters:
+      - description: Server ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Server'
+        "404":
+          description: 'error: Id not found'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get server by ID
+      tags:
+      - servers
+    put:
+      consumes:
+      - application/json
+      description: Update details of an existing server record
+      parameters:
+      - description: Server ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Fields to update
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Server'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Server'
+        "400":
+          description: 'error: Bad request'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: Id not found'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a server
+      tags:
+      - servers
+  /api/systems:
+    get:
+      description: |-
+        Get a list of all systems
+        Get a list of all systems
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.System'
+            type: array
+      summary: Get all systems
+      tags:
+      - systems
+    post:
+      consumes:
+      - application/json
+      description: Create a new system database entry by providing system fields
+      parameters:
+      - description: System creation payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateSystemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.System'
+        "400":
+          description: 'error: Invalid request body'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: Server not found'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Failed to create system'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new system
+      tags:
+      - systems
+  /api/systems/{id}:
+    delete:
+      description: Delete a system record and its related notes/features from database
+      parameters:
+      - description: System ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: Delete successfully'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: Id not found'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Failed to delete data'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a system
+      tags:
+      - systems
+    get:
+      description: Get detailed information of a system including server
+      parameters:
+      - description: System ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.System'
+        "404":
+          description: 'error: Id not found'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get system by ID
+      tags:
+      - systems
+    put:
+      consumes:
+      - application/json
+      description: Update details of an existing system by ID
+      parameters:
+      - description: System ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Fields to update
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.System'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.System'
+        "400":
+          description: 'error: Bad request'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: Id not found'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Failed to update database'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a system
+      tags:
+      - systems
+  /api/systems/{id}/documentations:
+    get:
+      description: Get a list of documentations associated with a system ID, optionally
+        filtered by category
+      parameters:
+      - description: System ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Optional category filter
+        in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Documentation'
+            type: array
+        "500":
+          description: 'error: Gagal mengambil data dokumentasi'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get system documentations
+      tags:
+      - documentations
+    post:
+      consumes:
+      - application/json
+      description: Create a new documentation entry for a system
+      parameters:
+      - description: System ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Documentation payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateDocumentationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Documentation'
+        "400":
+          description: 'error: ID System tidak valid / Invalid payload / Kategori
+            tidak valid'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: System tidak ditemukan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Gagal menyimpan ke database'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create documentation
+      tags:
+      - documentations
+  /api/systems/{id}/feature-requests:
+    get:
+      description: Get a list of feature requests associated with a specific system
+      parameters:
+      - description: System ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.FeatureRequest'
+            type: array
+        "500":
+          description: 'error: Gagal mengambil data feature request'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get feature requests by system ID
+      tags:
+      - feature-requests
+    post:
+      consumes:
+      - application/json
+      description: Create a new feature request for a system
+      parameters:
+      - description: System ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Feature request payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateFeatureRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.FeatureRequest'
+        "400":
+          description: 'error: ID System tidak valid / Invalid request body'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: System tidak ditemukan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Gagal menyimpan ke database'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new feature request
+      tags:
+      - feature-requests
+  /api/systems/{id}/notes:
+    get:
+      description: Get a list of notes associated with a specific system
+      parameters:
+      - description: System ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Note'
+            type: array
+        "500":
+          description: 'error: Gagal mengambil catatan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get notes by system ID
+      tags:
+      - notes
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Create a new note for a system by providing the system ID and note content
+        Create a new note for a system
+      parameters:
+      - description: System ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Note content payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateNoteRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Note'
+        "400":
+          description: 'error: ID System tidak valid / Invalid request body'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: System tidak ditemukan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Gagal menyimpan ke database'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new note
+      tags:
+      - notes
+swagger: "2.0"
